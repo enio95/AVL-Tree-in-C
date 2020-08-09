@@ -1,61 +1,74 @@
-#include "tree.h"
-#include <time.h>
+#include "avlTree.h"
+#include "time.h"
 
-void myPrint(const void *elem)
+#define TESTNUMBER 10000
+
+int* allocInt(int n)
 {
-  if ( elem!=NULL )
-    printf("%d\n",*(int*)elem);
+  int *p = (int*)malloc(sizeof(int));
+
+  *p = n;
+
+  return p;
+}
+
+int cmp(const void *a, const void *b)
+{
+  return *(int*)a - *(int*)b;
+}
+
+void print(const void *pointer)
+{
+  if ( pointer == NULL )
+    printf("NONE\n");
 
   else
-    printf("NULL\n");
+    printf("%d\n", *(int*)pointer);
 }
 
-int myCmp(const void *a, const void *b)
+
+Atree* insertTest(Atree *tree)
 {
-  return *(int*)a - *(int*)b;
+  printf("START: Insert Test\n");
+
+  for( int i = TESTNUMBER; i; i-- )
+    tree = insertAtree(tree, allocInt(rand()%100000), cmp);
+
+  checkSorted(tree, cmp);
+  checkBalanced(tree);
+
+  printf("END: Insert Test\n");
+
+  return tree;
 }
 
-int myCmp2(const void *a, const void *b)
+Atree* deleteTest(Atree *tree)
 {
-  return *(int*)a - *(int*)b;
-}
+  printf("START: Delete Test\n");
 
-int* newInt(int n)
-{
-  int *temp = (int*)malloc(sizeof(int));
+  int n;
 
-  *temp = n;
+  for( int i = TESTNUMBER/(rand()%100); i; i-- )
+    {
+      n = rand()%100000;
+      tree = deleteAtree(tree, &n, cmp);
+    }
 
-  return temp;
-}
+  checkSorted(tree, cmp);
+  checkBalanced(tree);
 
-void myFree(int *n)
-{
-  free(n);
+  printf("END: Delete Test\n");
+
+  return tree;
 }
 
 int main()
 {
+  Atree *tree = allocAtree();
+
   srand(time(NULL));
-
-  Tree *tree = allocTree(myCmp);
-
-  for( int i=0; i<10; i++ )
-    insertTree(tree, newInt(rand()%20));
-
-  //byLevel(tree, myPrint);
-
-  myPrint(maxTree(tree));
-  myPrint(minTree(tree));
-
-  /* preOrderTree(tree, myPrint); */
-  /* inOrderTree(tree, myPrint); */
-  /* postOrderTree(tree, myPrint); */
-  byLevel(tree, myPrint);
-
-  myPrint(searchTree(tree, newInt(3)));
-
-  tree->cmp = myCmp2;
+  tree = insertTest(tree);
+  tree = deleteTest(tree);
 
   return 0;
 }
